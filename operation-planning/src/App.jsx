@@ -1,122 +1,201 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import React, { useState } from 'react';
+import { DndContext, DragOverlay } from '@dnd-kit/core';
+import Sidebar from './components/Sidebar';
+import Header from './components/Header';
+import OperationTabs from './components/OperationTabs';
+import ProductCard from './components/ProductCard';
+import StationRow from './components/StationRow';
+import PlanModal from './components/PlanModal';
 
-function App() {
-  const [count, setCount] = useState(0)
+import { OPERATIONS, INITIAL_PRODUCTS, INITIAL_STATIONS } from './data/mockData';
+import './styles/App.css';
+
+export default function App() {
+  const [activeTab, setActiveTab] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [products, setProducts] = useState(INITIAL_PRODUCTS);
+  const [stations, setStations] = useState(INITIAL_STATIONS);
+
+  const [activeDragProduct, setActiveDragProduct] = useState(null);
+  const [modalState, setModalState] = useState({
+    isOpen: false,
+    draggedProduct: null,
+    targetStation: null,  
+});
+
+const filteredProducts = products.filter((item) => {
+  const matchesTab = activeTab ==='all' || item.opId === activeTab;
+  const matchesSearch =
+      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.code.toLowerCase().includes(searchTerm.toLowerCase());
+  return matchesTab && matchesSearch;
+});
+
+const handleDragStart = (event) => {
+  const { active } = event;
+  const draggedItem = products.find((p) => p.id === active.id);
+  setActiveDragProduct(draggedItem || null);
+};
+
+const handleDragEnd = (event) => {
+  const {active, over } = event;
+  setActiveDragProduct(null);
+
+  if(!over) return;
+
+  const draggedProd = products.find((p) => p.id === active.id);
+  const targetStat = stations.find((s) => s.id === over.id);
+
+  if (draggedProd && targetStat) {
+    setModalState({
+      isOpen: true,
+      draggedProduct: draggedProd,
+      targetStation: targetStat,
+    });
+  }
+};
+
+  const TIMELINE_PALETTE = [
+    { action: '#1d4ed8', plan: '#2563eb' }, // Mavi
+    { action: '#0f766e', plan: '#0d9488' }, // Teal
+    { action: '#78350f', plan: '#92400e' }, // Kahve/Altın
+    { action: '#be185d', plan: '#db2777' }, // Magenta
+    { action: '#7e22ce', plan: '#9333ea' }, // Mor
+    { action: '#c2410c', plan: '#ea580c' }, // Turuncu
+  ];
+
+  const handleConfirmPlan = (stationId, productId, newPlanData) => {
+    setStations((prevStations) =>
+      prevStations.map((station) => {
+        if (station.id === stationId) {
+          const currentCount = (station.plannedCards || []).length;
+          const colorPair = TIMELINE_PALETTE[currentCount % TIMELINE_PALETTE.length];
+
+          const newTimelineBlock = {
+            id: `block-${Date.now()}`,
+            title: newPlanData.title || 'Ürün Planı',
+            code: newPlanData.code || 'KOD-000',
+            workOrder: '2321',
+            qty: newPlanData.qty,
+            actionColor: colorPair.action,
+            planColor: colorPair.plan,
+            setupNumber: currentCount + 1,
+          };
+
+          const totalQty = (station.plannedCards || []).reduce((sum, card) => sum + (card.qty || 0), 0) + (newPlanData.qty || 0);
+          const calculatedHours = (totalQty * 0.08).toFixed(1);
+
+          return {
+            ...station,
+            workload: `${calculatedHours} sa`,
+            plannedCards: [...(station.plannedCards || []), newPlanData],
+            timelineBlocks: [...(station.timelineBlocks || []), newTimelineBlock],
+          };
+        }
+        return station;
+      })
+    );
+
+    setProducts((prevProducts) =>
+      prevProducts.map((prod) => {
+        if (prod.id === productId) {
+          const remainingQty = Math.max(0, prod.remaining - newPlanData.qty);
+          return {
+            ...prod,
+            remaining: remainingQty,
+            planned: prod.planned + newPlanData.qty,
+          };
+        }
+        return prod;
+      })
+    );
+
+    setModalState({ isOpen: false, draggedProduct: null, targetStation: null });
+  };
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+      <div className="layout-root">
+        <Sidebar />
 
-      <div className="ticks"></div>
+        <div className="layout-main">
+          <Header searchTerm={searchTerm} onSearchChange={setSearchTerm} />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+          <main className="content-container">
+            {/* Operasyon Sekmeleri */}
+            <OperationTabs
+              operations={OPERATIONS}
+              activeTab={activeTab}
+              onSelectTab={setActiveTab}
+            />
+
+            {/* Planlanabilir Mamüller Havuzu */}
+            <section className="product-pool-section">
+              <div className="pool-header-row">
+                <h2 className="pool-title">Planlanabilir Mamüller</h2>
+
+                <div className="pool-stats-row">
+                  <div className="pool-stat-pill">
+                    <span className="pstat-lbl">Toplam İş Yükü</span>
+                    <strong className="pstat-val">12.3 sa</strong>
+                  </div>
+                  <div className="pool-stat-pill">
+                    <span className="pstat-lbl">Toplam Saat</span>
+                    <strong className="pstat-val">4.2 sa</strong>
+                  </div>
+                  <div className="pool-stat-pill">
+                    <span className="pstat-lbl">İstasyon Ort.</span>
+                    <strong className="pstat-val">4.2 sa</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div className="product-pool-scroll">
+                {filteredProducts.length > 0 ? (
+                  filteredProducts.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))
+                ) : (
+                  <p className="no-data-text">Bu operasyona ait mamül bulunamadı.</p>
+                )}
+              </div>
+            </section>
+
+            {/* İstasyonlar & Planlama Çizelgesi */}
+            <section className="stations-section">
+              <div className="stations-section-header">
+                <div className="stations-head-left">
+                  <h2 className="stations-title">İstasyonlar</h2>
+                  <button type="button" className="schedule-toggle-btn">
+                    <span>Çizelge</span>
+                    <span className="schedule-arrow">▲</span>
+                  </button>
+                </div>
+                <div className="stations-orange-line" />
+              </div>
+
+              <div className="stations-list">
+                {stations.map((station) => (
+                  <StationRow key={station.id} station={station} />
+                ))}
+              </div>
+            </section>
+          </main>
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
-}
+        <DragOverlay>
+          {activeDragProduct ? <ProductCard product={activeDragProduct} /> : null}
+        </DragOverlay>
 
-export default App
+         <PlanModal
+         isOpen={modalState.isOpen}
+         draggedProduct={modalState.draggedProduct}
+         targetStation={modalState.targetStation}
+         onClose={() => setModalState({ isOpen: false, draggedProduct: null, targetStation:null })}
+         onConfirmPlan={handleConfirmPlan}
+       />
+     </div>
+   </DndContext>
+  );
+}      
+
