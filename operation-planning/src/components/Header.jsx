@@ -10,24 +10,27 @@ export default function Header({ searchTerm, onSearchChange }) {
 
       <div className="header-center">
         <div className="search-bar">
-          <Search size={17} className="search-icon" />
+          <Search size={18} className="search-icon" />
           <input
             type="text"
-            placeholder="Mamül veya İş Emri ara..."
+            placeholder=""
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
+            className="search-input"
           />
-          <ChevronDown size={16} className="search-chevron" />
+          <div className="search-dropdown-trigger">
+            <ChevronDown size={17} />
+          </div>
         </div>
       </div>
 
       <div className="header-right">
-        <button type="button" className="header-icon-btn" title="Dışa Aktar / İndir">
+        <button type="button" className="header-icon-btn" title="Dışa Aktar">
           <Download size={18} />
         </button>
 
         <button type="button" className="header-bell-btn" title="Bildirimler">
-          <Bell size={18} />
+          <Bell size={18} fill="#ffffff" color="#ffffff" />
         </button>
       </div>
     </header>

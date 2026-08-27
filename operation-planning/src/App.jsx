@@ -113,6 +113,30 @@ const handleDragEnd = (event) => {
     setModalState({ isOpen: false, draggedProduct: null, targetStation: null });
   };
 
+  const [poolScrollPercent, setPoolScrollPercent] = useState(0);
+  const [timelineScrollPercent, setTimelineScrollPercent] = useState(0);
+  const poolScrollRef = React.useRef(null);
+
+  const handlePoolScroll = () => {
+    if (poolScrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = poolScrollRef.current;
+      const maxScroll = scrollWidth - clientWidth;
+      if (maxScroll > 0) {
+        setPoolScrollPercent((scrollLeft / maxScroll) * 100);
+      }
+    }
+  };
+
+  const handlePoolSliderChange = (e) => {
+    const newPercent = Number(e.target.value);
+    setPoolScrollPercent(newPercent);
+    if (poolScrollRef.current) {
+      const { scrollWidth, clientWidth } = poolScrollRef.current;
+      const maxScroll = scrollWidth - clientWidth;
+      poolScrollRef.current.scrollLeft = (newPercent / 100) * maxScroll;
+    }
+  };
+
   return (
     <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <div className="layout-root">
@@ -150,7 +174,11 @@ const handleDragEnd = (event) => {
                 </div>
               </div>
 
-              <div className="product-pool-scroll">
+              <div
+                ref={poolScrollRef}
+                onScroll={handlePoolScroll}
+                className="product-pool-scroll"
+              >
                 {filteredProducts.length > 0 ? (
                   filteredProducts.map((product) => (
                     <ProductCard key={product.id} product={product} />
@@ -158,6 +186,19 @@ const handleDragEnd = (event) => {
                 ) : (
                   <p className="no-data-text">Bu operasyona ait mamül bulunamadı.</p>
                 )}
+              </div>
+
+              {/* Havuz Altı İnteraktif Turuncu Slider */}
+              <div className="pool-slider-row">
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={poolScrollPercent}
+                  onChange={handlePoolSliderChange}
+                  className="figma-orange-range-slider"
+                  title="Mamülleri Kaydır"
+                />
               </div>
             </section>
 
@@ -171,12 +212,28 @@ const handleDragEnd = (event) => {
                     <span className="schedule-arrow">▲</span>
                   </button>
                 </div>
-                <div className="stations-orange-line" />
+
+                {/* İstasyonlar Başlığı Yanındaki İnteraktif Turuncu Slider */}
+                <div className="stations-slider-wrap">
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={timelineScrollPercent}
+                    onChange={(e) => setTimelineScrollPercent(Number(e.target.value))}
+                    className="figma-orange-range-slider"
+                    title="Zaman Çizelgesini Kaydır"
+                  />
+                </div>
               </div>
 
               <div className="stations-list">
                 {stations.map((station) => (
-                  <StationRow key={station.id} station={station} />
+                  <StationRow
+                    key={station.id}
+                    station={station}
+                    timelineScroll={timelineScrollPercent}
+                  />
                 ))}
               </div>
             </section>

@@ -3,17 +3,8 @@ import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { MoreHorizontal, HelpCircle } from 'lucide-react';
 
-// Temiz vektörel Dişli SVG İkonu
-const GearIconSvg = () => (
-  <svg width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect width="40" height="40" rx="6" fill="#F2F4F7" />
-    <g transform="translate(20,20)" fill="#475467">
-      <path d="M0 -15 L3 -15 L4 -11 A11 11 0 0 1 8 -9 L12 -11 L14 -9 L12 -5 A11 11 0 0 1 13 0 L17 1 L17 3 L13 4 A11 11 0 0 1 12 9 L14 13 L12 15 L8 13 A11 11 0 0 1 4 15 L3 19 L-3 19 L-4 15 A11 11 0 0 1 -8 13 L-12 15 L-14 13 L-12 9 A11 11 0 0 1 -13 4 L-17 3 L-17 1 L-13 0 A11 11 0 0 1 -12 -5 L-14 -9 L-12 -11 L-8 -9 A11 11 0 0 1 -4 -11 Z" />
-      <circle cx="0" cy="0" r="5.5" fill="#F2F4F7" />
-      <circle cx="0" cy="0" r="3" fill="#344054" />
-    </g>
-  </svg>
-);
+// Helis Dişli SVG İkonu
+import helisDisliSvg from '../assets/icons/helis disli.svg';
 
 export default function ProductCard({ product }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
@@ -39,7 +30,7 @@ export default function ProductCard({ product }) {
       <div className="figma-pcard-header">
         <div className="figma-pcard-thumb-wrap">
           <div className="figma-pcard-green-badge" />
-          <GearIconSvg />
+          <img src={helisDisliSvg} alt="Helis Dişli" className="figma-pcard-gear-img" />
         </div>
 
         <div className="figma-pcard-meta">

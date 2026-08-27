@@ -12,6 +12,7 @@ import truckSvg from '../assets/icons/truck-02.svg';
 import flexSvg from '../assets/icons/flex.svg';
 import chatSvg from '../assets/icons/_Nav item button (10).svg';
 import settingsSvg from '../assets/icons/settings.svg';
+import bacaLogoSvg from '../assets/icons/Baca Makine Logo.svg';
 
 export default function Sidebar() {
   const navItems = [
@@ -70,17 +71,9 @@ export default function Sidebar() {
 
         <div className="sidebar-orange-divider" />
 
-        {/* BACA Engineering Kartı */}
-        <div className="baca-card-badge" title="BACA Engineering">
-          <div className="baca-logo-row">
-            <div className="baca-cyan-square">
-              <span>B</span>
-            </div>
-            <div className="baca-text-col">
-              <span className="baca-main-title">BACA</span>
-              <span className="baca-sub-title">engineering</span>
-            </div>
-          </div>
+        {/* BACA Makine Orijinal Logosu */}
+        <div className="baca-card-badge" title="BACA Makine">
+          <img src={bacaLogoSvg} alt="BACA Makine" className="baca-logo-img" />
         </div>
 
         <div className="sidebar-orange-divider" />

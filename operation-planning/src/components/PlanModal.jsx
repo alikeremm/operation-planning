@@ -11,9 +11,8 @@ import {
   HelpCircle
 } from 'lucide-react';
 
-// Gear and Machine SVG placeholders if not passed from product/station
-const GEAR_THUMB = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Cdefs%3E%3ClinearGradient id='gGrad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2364748b'/%3E%3Cstop offset='100%25' stop-color='%231e293b'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='80' height='80' rx='6' fill='%23eaecf0'/%3E%3Cg transform='translate(40,40)' fill='url(%23gGrad)'%3E%3Cpath d='M0 -28 L5 -28 L6 -20 A20 20 0 0 1 15 -16 L22 -20 L25 -17 L21 -10 A20 20 0 0 1 24 0 L32 2 L32 6 L24 8 A20 20 0 0 1 21 18 L25 25 L22 28 L15 24 A20 20 0 0 1 6 28 L5 36 L-5 36 L-6 28 A20 20 0 0 1 -15 24 L-22 28 L-25 25 L-21 18 A20 20 0 0 1 -24 8 L-32 6 L-32 2 L-24 0 A20 20 0 0 1 -21 -10 L-25 -17 L-22 -20 L-15 -16 A20 20 0 0 1 -6 -20 Z'/%3Ccircle cx='0' cy='0' r='10' fill='%23eaecf0'/%3E%3Ccircle cx='0' cy='0' r='6' fill='%23334155'/%3E%3C/g%3E%3C/svg%3E";
-const CNC_THUMB = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 75'%3E%3Crect width='100' height='75' rx='6' fill='%23f1f5f9'/%3E%3Crect x='10' y='12' width='80' height='50' rx='4' fill='%23334155'/%3E%3Crect x='18' y='18' width='38' height='34' rx='2' fill='%2364748b'/%3E%3Crect x='22' y='22' width='30' height='26' rx='1' fill='%23cbd5e1' opacity='0.7'/%3E%3Crect x='62' y='18' width='22' height='16' rx='2' fill='%230284c7' opacity='0.8'/%3E%3Ccircle cx='68' cy='46' r='3' fill='%23ef4444'/%3E%3Ccircle cx='78' cy='46' r='3' fill='%2322c55e'/%3E%3Crect x='14' y='62' width='72' height='4' fill='%230f172a'/%3E%3C/svg%3E";
+import helisDisliSvg from '../assets/icons/helis disli.svg';
+
 const USER_AVATAR = `${import.meta.env.BASE_URL}images/user-profile.jpg`;
 
 export default function PlanModal({ isOpen, onClose, draggedProduct, targetStation, onConfirmPlan }) {
@@ -105,7 +104,7 @@ export default function PlanModal({ isOpen, onClose, draggedProduct, targetStati
                 <div className="figma-prod-card-top">
                   <div className="figma-prod-thumb-box">
                     <div className="figma-green-tag" />
-                    <img src={GEAR_THUMB} alt="Mamül" className="figma-prod-thumb-img" />
+                    <img src={helisDisliSvg} alt="Mamül" className="figma-prod-thumb-img" />
                   </div>
 
                   <div className="figma-prod-info-col">
@@ -174,12 +173,9 @@ export default function PlanModal({ isOpen, onClose, draggedProduct, targetStati
 
             {/* Right: Target Machine */}
             <div className="figma-station-card-wrap">
-              <div className="figma-station-thumb-box">
-                <img src={CNC_THUMB} alt="Tezgah" className="figma-station-thumb-img" />
-              </div>
-              <div className="figma-station-info-col">
-                <h3 className="figma-station-name">{targetStation.name || 'Hummer T-42 CL'}</h3>
-                <span className="figma-station-type-badge">{targetStation.type || 'CNC Dişli'}</span>
+              <div className="figma-station-info-col" style={{ padding: '8px 12px' }}>
+                <h3 className="figma-station-name">{targetStation.name || 'GOODWAY GLS-200'}</h3>
+                <span className="figma-station-type-badge">{targetStation.type || 'CNC Torna'}</span>
               </div>
             </div>
           </div>
